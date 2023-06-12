@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <title>Quizer - HomePage</title>
+</head>
+
+<body>
+    <div class="container row m-3">
+        <div class="col-4">
+            <div class="h3">Name: {{quiz.name}}</div>
+            <div>{{quiz.createdAt}}</div>
+            <a href="#" class="btn btn-primary text-decoration-none">Edit</a>
+            <a href="/host?quizId={{quiz._id}}" target="_blank" and rel="noopener noreferrer" class="btn btn-primary text-decoration-none">Play</a>
+        </div>
+        <div class="col-8">
+            {{#each questions}}
+            <div class="card mb-3">
+                <div class="card-body row">
+                    <div class="col-8">
+                        <h5 class="card-title">{{this.question}}</h5>
+                        <h6 class="card-subtitle mb-2 text-body-secondary">Type</h6>
+                        <p class="card-text">
+                            A: {{this.answerA}} <br>
+                            B: {{this.answerB}} <br>
+                            C: {{this.answerC}} <br>
+                            D: {{this.answerD}} <br>
+                    </div>
+                    <div class="col-4">
+                        {{#if this.image}}
+                        <img width="200px" height="150px" src="../../../public/images/{{this.image}}" >
+                        {{/if}}
+                    </div>
+ 
+                    </p>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</body>
+
+</html>

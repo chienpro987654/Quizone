@@ -1,0 +1,21 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Library</title>
+  </head>
+  <body>
+    <h3 class="d-flex justify-content-center">Library</h3>
+    <div class="container row m-3">
+      {{#each quizzes}}
+        <a class="card text-decoration-none col-3 m-2" style="width: 18rem;" href="library/view/{{this.slug}}">
+          <div class="card-body">
+            <h5 class="card-title">{{this.name}}</h5>
+            <p class="card-text">Date Created: {{this.createdAt}}</p>
+          </div>
+        </a>
+      {{/each}}
+    </div>
+  </body>
+</html>

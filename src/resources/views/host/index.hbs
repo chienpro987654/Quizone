@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <title>Quizer - HomePage</title>
+</head>
+
+<body>
+    <div class="container text-center m-3" style="min-height: 73vh;">
+        <div class="h1">PIN: {{pin}}</div>
+        <div class="h3 mb-3">Waiting for players</div>
+        <div class="spinner-border text-success mb-3" role="status">
+        </div>
+        <div class="container mb-3" id="list-players" style="height: 320px; width: 80%; background-color: #5bb5d6">
+            {{!-- <div class="m-4 player p-2 d-inline-block" style="background-color: #e9ec26">Anna</div> --}}
+        </div>
+        <a class="btn btn-primary" href="start/{{slug}}" id="btnStart">START</a>
+        <div id="error" hidden>Need at least one player to begin</div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+
+        var socket = io();
+
+        socket.emit("host_info_update", {pin: {{pin}} });
+
+        var player = document.getElementsByClassName("player");
+
+        var btnStart = document.getElementById('btnStart');
+        var error = document.getElementById('error');
+
+        btnStart.addEventListener("click", function (e) {
+            if (player.length == 0) {
+                e.preventDefault();
+                error.removeAttribute("hidden");
+            }
+        });
+
+        const list = document.getElementById("list-players");
+
+        socket.on('player_join_host', function (data) {
+            console.log(data);
+            var div = document.createElement('div');
+            div.classList.add("m-4","player" ,"p-2", "d-inline-block");
+            div.style.backgroundColor = "#e9ec26";
+            div.innerText = data.name;
+            list.appendChild(div);
+        });
+
+    </script>
+</body>
+
+</html>

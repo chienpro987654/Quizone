@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <title>Quizer - HomePage</title>
+</head>
+
+<body>
+    <div>
+        <div class="container text-center" style="margin-top: 200px; margin-bottom: 200px">
+            <div class="h3">Waiting for host to start the game</div>
+            <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="h4">See your name in the screen?</div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        function onBeforeUnload(e) {
+
+            e.preventDefault();
+            e.returnValue = '';
+            return;
+
+            //delete e['returnValue'];
+        }
+
+        window.addEventListener('beforeunload', onBeforeUnload);
+
+
+        var socket = io();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const pin = urlParams.get('pin');
+
+        socket.emit("game_alive",pin);
+
+        socket.on('game_alive', function (data) {
+            if (data==false)
+            {
+                window.location.href = "/play/join";
+            }
+            console.log(data);
+        });
+
+        socket.on('host_disconnect', function (data) {
+            if (data==pin)
+            {
+                window.location.href = "/play/join";
+            }
+            console.log(data);
+        });
+    </script>
+</body>
+
+</html>

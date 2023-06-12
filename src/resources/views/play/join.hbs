@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <title>Quizer - HomePage</title>
+    <style>
+        {
+                {
+                !-- hidden arrow from input type number --
+            }
+        }
+
+        /* Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="min-height: 73vh;">
+        <div class="container text-center m-3">
+            <div class="h3 mb-3">Join A Quiz</div>
+
+            <label for="input-name">Enter your name</label>
+            <input id="input-name" class="mb-3" placeholder="Type your name here" required> <br>
+
+            <label for="input-pin">Enter Game Pin: </label>
+            <input type="number" id="input-pin" placeholder="Enter PIN here" autocomplete="off" required> <br>
+
+            {{#if error}}
+            <div class="text text-danger" id="error">{{error}}</div>
+            {{else}}
+            <div class="text text-danger" id="error" hidden></div>
+            {{/if}}
+
+            <a id="btn-join" class="btn btn-primary mt-3">Join</a>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        var btnJoin = document.getElementById("btn-join");
+        var inputPin = document.getElementById("input-pin");
+        var inputName = document.getElementById("input-name");
+        var error = document.getElementById("error");
+
+        btnJoin.addEventListener("click", function (e) {
+            console.log(inputPin.validity.valid && inputName.validity.valid);
+            if (inputPin.validity.valid && inputName.validity.valid) {
+                if (inputPin.value) {
+                    socket.emit('player_join_req', { pin: inputPin.value, name: inputName.value });
+                }
+            }
+            else {
+                error.removeAttribute("hidden");
+                error.innerHTML = "Please enter PIN and name";
+            }
+
+        });
+
+        socket.on('player_join_res', function (data) {
+            if (data.error) {
+                error.removeAttribute("hidden");
+                error.innerHTML = data.error;
+            }
+            else {
+                window.location.href = "/play/waiting" + "?name=" + data.name + "&pin=" + data.pin;
+            }
+            console.log(data.name);
+        });
+
+    </script>
+</body>
+
+</html>

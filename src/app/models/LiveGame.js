@@ -9,6 +9,7 @@ const LiveGame = new Schema({
     socket_id: {type: String, maxLength: 255},
     pin: {type: String, maxLength: 6},
     finished: {type: Boolean, default: false},
+    running: {type: Boolean, default: false},
     player: {type: String, default: ""},
     data: {type: String, default: ""},
 },{

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,9 +8,135 @@
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <title>Quizer - HomePage</title>
 </head>
+
 <body>
     <div style="min-height: 73vh;">
-        Start Home
+        <div class="h2 d-flex justify-content-center">{{quiz.name}}</div>
+        <div id="first-timer" class="h2 d-flex justify-content-center">5</div>
+        <div id="prepare-container" class="text-center" style="display: none;">
+            <div id="prepare-timer" class="h3 d-flex justify-content-center"></div>
+            <div id="prepare-question"></div>
+            <div class="error"></div>
+        </div>
+        <div id="quiz-container" style="display: none;">
+            <div id="waiting-timer" class="text-center"></div>
+            <div id="waiting-question" class="text-center"></div>
+            <div id="answerA" class="text-center"></div>
+            <div id="answerB" class="text-center"></div>
+            <div id="answerC" class="text-center"></div>
+            <div id="answerD" class="text-center"></div>
+        </div>
+        <div id="result-container" class="text-center" style="display: none">
+            <div id="resultA" class="text-center">0</div>
+            <div id="resultB" class="text-center">0</div>
+            <div id="resultC" class="text-center">0</div>
+            <div id="resultD" class="text-center">0</div>
+            <div id="next-btn" class="btn btn-primary">Next</div>
+        </div>
+
+
     </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        window.onload = function () {
+            firstTimeLoad();
+        }
+
+        var first_timer = document.getElementById("first-timer");
+
+        var questions = document.getElementById("question");
+
+        var prepare_container = document.getElementById("prepare-container");
+        var prepare_timer = document.getElementById("prepare-timer");
+        var prepare_question = document.getElementById("prepare-question");
+
+        var quiz_container = document.getElementById("quiz-container");
+        var waiting_question = document.getElementById("waiting-question");
+        var answerA = document.getElementById("answerA");
+        var answerB = document.getElementById("answerB");
+        var answerC = document.getElementById("answerC");
+        var answerD = document.getElementById("answerD");
+        var waiting_timer = document.getElementById("waiting-timer");
+
+        var result_container = document.getElementById("result-container");
+        var resultA = document.getElementById("resultA");
+        var resultB = document.getElementById("resultB");
+        var resultC = document.getElementById("resultC");
+        var resultD = document.getElementById("resultD");
+
+        function runTimer(element, counter, result) {
+            setInterval(() => {
+                if (counter >= 0) {
+                    element.innerHTML = counter;
+                    counter--;
+                }
+                else {
+                    result("abc");
+                }
+            }, 1000);
+        }
+        var socket = io();
+        var counter = 0;
+
+        async function firstTimeLoad(){
+            const firstTimePromise = new Promise(function (result, error) {
+                runTimer(first_timer, 3, result);
+            });
+            await firstTimePromise;
+            socket.emit("next_question_req", { counter: counter, pin: {{ pin }} });
+        }
+
+        first_timer.style.display = "none";
+
+
+        socket.on('next_question_res', async function (data) {
+            if (data) {
+                prepare_container.style.display = "";
+                const preparePromise = new Promise(function (result, error) {
+                    //runTimer(prepare_timer, data.question.time_prepare, result);
+                    runTimer(prepare_timer, 3, result);
+                    prepare_question.innerHTML = data.question.question;
+                })
+                await preparePromise;
+
+                quiz_container.style.display = "";
+                prepare_container.style.display = "none";
+
+                waiting_question.innerHTML = data.question.question;
+
+                answerA.innerHTML = "A: " + data.question.answerA;
+                answerB.innerHTML = "B: " + data.question.answerB;
+                answerC.innerHTML = "C: " + data.question.answerC;
+                answerD.innerHTML = "D: " + data.question.answerD;
+
+                const waitingPromise = new Promise(function (result, error) {
+                    //runTimer(waiting_timer, data.question.time_waiting, result);
+                    runTimer(waiting_timer, 3, result);
+                })
+                await waitingPromise;
+
+                quiz_container.style.display = "none";
+                result_container.style.display = "";
+                socket.emit("result_req", { pin: {{ pin }} , counter: counter
+        });
+            }
+        });
+
+        socket.on('result_res', async function (data) {
+            if (data){
+                if (data.pin == {{pin}}){
+            resultA.innerHTML = data.counterA;
+            resultB.innerHTML = data.counterB;
+            resultC.innerHTML = data.counterC;
+            resultD.innerHTML = data.counterD;
+        }
+            console.log(data);
+            }
+        });
+
+        socket.emit("host_info_update", { pin: {{ pin }} });
+
+    </script>
 </body>
+
 </html>

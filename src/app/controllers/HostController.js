@@ -12,7 +12,7 @@ class HostController {
             if (!isEmpty(quiz_id)) {
                 const doc = await Quiz.findOne({ id: quiz_id });
                 if (doc) {
-                    // //create a live game
+                    //create a live game
                     const liveGame = new LiveGame();
                     if (res.locals.user){
                         liveGame.host_id = res.locals.user.id;
@@ -41,10 +41,20 @@ class HostController {
         }
     }
 
-    start(req, res, next) {
-        res.render("host/start");
+    async start(req, res, next) {
+        try {
+            var quiz_id = req.query.quizId;
+            var pin = req.query.pin;
+            if (!isEmpty(quiz_id)){
+                const doc = await Quiz.findOne({ id: quiz_id });
+                if (doc) {
+                    res.render("host/start", {quiz: doc, pin: pin});
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
-
 }
 
 module.exports = new HostController;

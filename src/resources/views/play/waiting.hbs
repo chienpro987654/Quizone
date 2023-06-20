@@ -21,22 +21,12 @@
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        function onBeforeUnload(e) {
-
-            e.preventDefault();
-            e.returnValue = '';
-            return;
-
-            //delete e['returnValue'];
-        }
-
-        window.addEventListener('beforeunload', onBeforeUnload);
-
 
         var socket = io();
 
         const urlParams = new URLSearchParams(window.location.search);
         const pin = urlParams.get('pin');
+        const nameParam = urlParams.get('name');
 
         socket.emit("game_alive",pin);
 
@@ -54,6 +44,14 @@
                 window.location.href = "/play/join";
             }
             console.log(data);
+        });
+
+        socket.on('host_start', function (data) {
+            if (data){
+                if (data.pin == pin){
+                    window.location.href = "/play/start" + "?name=" + nameParam + "&pin=" + pin;
+                }
+            }
         });
     </script>
 </body>

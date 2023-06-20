@@ -4,12 +4,14 @@ const User = require('../models/User');
 const requireAuth = (req,res,next)=>{
     const token = req.cookies.jwt;
     if (token){
-        jwt.verify(token,'quizone secret',(err, decodedToken)=>{
+        jwt.verify(token,'quizone secret',async (err, decodedToken)=>{
             if (err) {
                 console.log(err.message);
                 res.redirect('/auth/login');
             } else {
-                // console.log(decodedToken);
+                let user = await User.findById(decodedToken.id);
+                req.user = user;
+                console.log(decodedToken);
                 next();
             }
         });
@@ -24,6 +26,7 @@ const checkUser = (req,res,next) => {
         jwt.verify(token,'quizone secret',async (err, decodedToken)=>{
             if (err) {
                 console.log(err);
+                req.user = null;
                 res.locals.user = null;
                 next();
             }
@@ -31,6 +34,7 @@ const checkUser = (req,res,next) => {
                 // console.log(decodedToken);
                 let user = await User.findById(decodedToken.id);
                 res.locals.user = user;
+                req.user = user;
                 // console.log(user);
                 next();
             }

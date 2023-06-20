@@ -18,7 +18,7 @@
         <div class="container mb-3" id="list-players" style="height: 320px; width: 80%; background-color: #5bb5d6">
             {{!-- <div class="m-4 player p-2 d-inline-block" style="background-color: #e9ec26">Anna</div> --}}
         </div>
-        <a class="btn btn-primary" href="start/{{slug}}" id="btnStart">START</a>
+        <a class="btn btn-primary" id="btnStart">START</a>
         <div id="error" hidden>Need at least one player to begin</div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
@@ -33,10 +33,14 @@
         var btnStart = document.getElementById('btnStart');
         var error = document.getElementById('error');
 
-        btnStart.addEventListener("click", function (e) {
+        btnStart.addEventListener("click", async function (e) {
             if (player.length == 0) {
                 e.preventDefault();
                 error.removeAttribute("hidden");
+            }
+            else{
+                await socket.emit("host_start",{pin: {{pin}} });
+                window.location.href = "host/start?quizId={{quizId}}&pin={{pin}}";
             }
         });
 

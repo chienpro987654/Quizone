@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <title></title>
+</head>
+
+<body>
+    <div class="container text-center" style="margin-top: 200px; margin-bottom: 200px">
+        <div class="h3">Start Player</div>
+        <div id="answer-container" style="display: none;">
+            <button id="answerA" value="A" onclick="clickAnswer(this)" class="text-center btn btn-primary">Answer A</button>
+            <button id="answerB" value="B" onclick="clickAnswer(this)" class="text-center btn btn-primary">Answer B</button>
+            <button id="answerC" value="C" onclick="clickAnswer(this)" class="text-center btn btn-primary">Answer C</button>
+            <button id="answerD" value="D" onclick="clickAnswer(this)" class="text-center btn btn-primary">Answer D</button>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        function onBeforeUnload(e) {
+
+            e.preventDefault();
+            e.returnValue = '';
+            return;
+
+            delete e['returnValue'];
+        }
+        window.addEventListener('beforeunload', onBeforeUnload);
+
+        var answer_container = document.getElementById("answer-container");
+        var answerA = document.getElementById("answerA");
+        var answerB = document.getElementById("answerB");
+        var answerC = document.getElementById("answerC");
+        var answerD = document.getElementById("answerD");
+
+
+        var socket = io();
+
+        var counter = 0;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const pin = urlParams.get('pin');
+        const nameUrl = urlParams.get('name');
+
+        function clickAnswer(element){
+            socket.emit("send_answer_req", {answer: element.value, pin: pin, name: nameUrl, counter: counter});
+        }
+
+        //answerA.onclick("click", clickAnswer(answerA));
+        //answerB.addEventListener("click", clickAnswer(answerB));
+        //answerC.addEventListener("click", clickAnswer(answerC));
+        //answerD.addEventListener("click", clickAnswer(answerD));
+
+        socket.emit("game_alive", pin);
+
+        socket.on('game_alive', function (data) {
+            if (data == false) {
+                window.location.href = "/play/join";
+            }
+            console.log(data);
+        });
+
+        socket.on('host_disconnect', function (data) {
+            if (data == pin) {
+                window.location.href = "/play/join";
+            }
+            console.log(data);
+        });
+
+        socket.on('next_question_res_player', function (data) {
+            if (data.pin == pin) {
+                answer_container.style.display = "";
+                counter = data.counter;
+            }
+            console.log(data);
+        });
+
+        
+    </script>
+</body>
+
+</html>

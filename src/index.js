@@ -9,7 +9,7 @@ const session = require('express-session');
 var sessionstorage = require('sessionstorage');
 
 const app = express();
-const port = 3000;
+const port = 4000;
 
 //Used for get data as json format. Ex: res.json(req.body);
 app.use(express.json());

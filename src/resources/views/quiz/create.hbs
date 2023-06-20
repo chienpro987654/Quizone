@@ -1,0 +1,82 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create a quiz</title>
+</head>
+
+<body>
+  <h3 class="d-flex justify-content-center">Create New Quiz</h3>
+  <div class="container" id="container">
+    <form method="post" action="save" enctype="multipart/form-data">
+
+      <div class="mb-3">
+        <label for="title" class="form-label">Quiz Title</label>
+        <input type="text" class="form-control" id="title" name="title" placeholder="Enter title here">
+      </div>
+
+      <div id="question-container">
+        <div class="mb-3">
+          <label for="question" class="form-label">Question</label>
+          <input type="text" class="form-control" id="question" name="question" placeholder="Type your answer here">
+        </div>
+
+        <div class="mb-3">
+          <label for="image" class="form-label">Insert Media Here</label>
+          <input class="form-control" type="file" id="image" value="x" name="image">
+        </div>
+
+        <input type>
+
+        <div class="mb-3">
+          <label for="answerA" class="form-label">Add Answer A</label>
+          <input type="text" class="form-control" id="answerA" name="answerA" placeholder="Type your answer here">
+        </div>
+
+        <div class="mb-3">
+          <label for="answerB" class="form-label">Add Answer B</label>
+          <input type="text" class="form-control" id="answerB" name="answerB" placeholder="Type your answer here">
+        </div>
+
+        <div class="mb-3">
+          <label for="answerC" class="form-label">Add Answer C</label>
+          <input type="text" class="form-control" id="answerC" name="answerC" placeholder="Type your answer here">
+        </div>
+
+        <div class="mb-3">
+          <label for="answerD" class="form-label">Add Answer D</label>
+          <input type="text" class="form-control" id="answerD" name="answerD" placeholder="Type your answer here">
+        </div>
+
+        <label for="answer">Choose a true answer:</label>
+
+        <select name="answer" id="answer">
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+        </select>
+      </div>
+
+      <div id="addBtn" class="btn btn-primary mb-3">Add</div>
+      <br>
+      <button type="submit">Create</button>
+
+    </form>
+  </div>
+  <script>
+    var addBtn = document.getElementById("addBtn");
+
+    var container = document.getElementById("question-container");
+
+    addBtn.addEventListener("click", function (e) {
+      div = document.createElement("div");
+      div.innerHTML = "<div class='mb-3'> <label for='question' class='form-label'>Question</label> <input type='text' class='form-control' id='question' name='question' placeholder='Type your answer here'> </div> <div class='mb-3'> <label for='image' class='form-label'>Insert Media Here</label> <input class='form-control' type='file' id='image' name='image'> </div> <div class='mb-3'> <label for='answerA' class='form-label'>Add Answer A</label> <input type='text' class='form-control' id='answerA' name='answerA' placeholder='Type your answer here'> </div> <div class='mb-3'> <label for='answerB' class='form-label'>Add Answer B</label> <input type='text' class='form-control' id='answerB' name='answerB' placeholder='Type your answer here'> </div> <div class='mb-3'> <label for='answerC' class='form-label'>Add Answer C</label> <input type='text' class='form-control' id='answerC' name='answerC' placeholder='Type your answer here'> </div> <div class='mb-3'> <label for='answerD' class='form-label'>Add Answer D</label> <input type='text' class='form-control' id='answerD' name='answerD' placeholder='Type your answer here'> </div> <label for='answer'>Choose a true answer:</label> <select name='answer' id='answer'> <option value='A'>A</option> <option value='B'>B</option> <option value='C'>C</option> <option value='D'>D</option> </select>";
+      container.append(div);
+    });
+  </script>
+</body>
+
+</html>

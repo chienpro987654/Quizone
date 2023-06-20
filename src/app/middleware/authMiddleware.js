@@ -1,10 +1,12 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-const requireAuth = (req,res,next)=>{
-    const token = req.cookies.jwt;
-    if (token){
-        jwt.verify(token,'quizone secret',async (err, decodedToken)=>{
+const requireAuth = (req, res, next) => {
+    console.log(req);
+    // const token = req.cookies.jwt;
+    const token = req.headers.authorization;
+    if (token) {
+        jwt.verify(token, 'quizone secret', async (err, decodedToken) => {
             if (err) {
                 console.log(err.message);
                 res.redirect('/auth/login');
@@ -12,18 +14,21 @@ const requireAuth = (req,res,next)=>{
                 let user = await User.findById(decodedToken.id);
                 req.user = user;
                 console.log(decodedToken);
-                next();
+                // next();
+                res.send("True");
             }
         });
     } else {
-        res.redirect('/auth/login');
+        // res.redirect('/auth/login');
+        // next();
+        res.send("Error");
     }
 }
 
-const checkUser = (req,res,next) => {
+const checkUser = (req, res, next) => {
     const token = req.cookies.jwt;
-    if (token){
-        jwt.verify(token,'quizone secret',async (err, decodedToken)=>{
+    if (token) {
+        jwt.verify(token, 'quizone secret', async (err, decodedToken) => {
             if (err) {
                 console.log(err);
                 req.user = null;
@@ -45,4 +50,4 @@ const checkUser = (req,res,next) => {
     }
 }
 
-module.exports = {requireAuth,checkUser};
+module.exports = { requireAuth, checkUser };

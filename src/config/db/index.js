@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 function connect() {
     try {
-        mongoose.connect('mongodb://127.0.0.1/quizer_dev');
+        mongoose.connect('mongodb+srv://chienpro987654:Esd123456@clusterquizone.ns4djab.mongodb.net/');
         console.log("Connect successfully!");
     }
     catch (error) {

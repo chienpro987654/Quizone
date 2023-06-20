@@ -5,8 +5,8 @@ const handlebars = require("express-handlebars");
 const fileUpload = require('express-fileupload');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+var cors = require('cors')
 'use strict';
-var sessionstorage = require('sessionstorage');
 
 const app = express();
 const port = 4000;
@@ -20,6 +20,8 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
 }))
+
+app.use(cors());
 
 app.use(fileUpload({
   limits: {

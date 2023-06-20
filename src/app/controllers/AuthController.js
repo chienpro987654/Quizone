@@ -26,6 +26,7 @@ class AuthController
     }
 
     async login_post(req, res, next) {
+        console.log(req.body);
         const {email, password} = req.body;
         try {
             const user = await User.login(email,password);
@@ -33,10 +34,14 @@ class AuthController
             res.cookie('jwt',token, { httpOnly: true, maxAge: maxAge*1000});//cookie count as milliseconds
 
             res.redirect("/home");
+            // res.status(200).json({
+            //     success: true,
+            //     cookie: token,
+            // })
         } catch (error) {
             console.log(error);
         }
-        res.render("auth/login");
+        // res.render("auth/login");
     }
 
     async signup_post(req, res, next) {

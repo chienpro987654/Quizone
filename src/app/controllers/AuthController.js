@@ -12,7 +12,7 @@ const createToken = (id) => {
 
 class AuthController {
     login(req, res, next) {
-        res.render("auth/login");
+        // res.render("auth/login");
     }
 
     signup(req, res, next) {
@@ -32,15 +32,19 @@ class AuthController {
             const token = createToken(user._id);
             res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });//cookie count as milliseconds
 
-            res.redirect("/home");
-            res.status(200).json({
-                success: true,
+            // res.redirect("/home");
+            res.json({
+                status: "success",
                 cookie: token,
             })
         } catch (error) {
             console.log(error);
+            res.json({
+                status: "error",
+                error: error,
+            })
         }
-        res.render("auth/login");
+        // res.render("auth/login");
     }
 
     async signup_post(req, res, next) {

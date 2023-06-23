@@ -35,7 +35,9 @@ class AuthController {
             // res.redirect("/home");
             res.json({
                 status: "success",
-                cookie: token,
+                data: {
+                    cookie: token,
+                }
             })
         } catch (error) {
             console.log(error);
@@ -54,9 +56,19 @@ class AuthController {
             const token = createToken(user._id);
             res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });//cookie count as milliseconds
 
-            res.redirect("/home");
+            // res.redirect("/home");
+            res.json({
+                status: "success",
+                data: {
+                    cookie: token,
+                }
+            })
         } catch (error) {
             console.log(error);
+            res.json({
+                status: "error",
+                error: error,
+            })
         }
     }
 

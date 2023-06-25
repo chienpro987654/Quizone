@@ -31,7 +31,7 @@
             <div id="resultB" class="text-center">0</div>
             <div id="resultC" class="text-center">0</div>
             <div id="resultD" class="text-center">0</div>
-            <div id="next-btn" class="btn btn-primary">Next</div>
+            <div id="next-btn" onclick="nextQuestion()" class="btn btn-primary">Next</div>
         </div>
 
 
@@ -63,6 +63,7 @@
         var resultB = document.getElementById("resultB");
         var resultC = document.getElementById("resultC");
         var resultD = document.getElementById("resultD");
+        var next_btn = document.getElementById("next_btn");
 
         function runTimer(element, counter, result) {
             setInterval(() => {
@@ -74,6 +75,11 @@
                     result("abc");
                 }
             }, 1000);
+        }
+
+        async function nextQuestion(){
+            await counter++;
+            socket.emit("next_question_req", { counter: counter, pin: {{ pin }} });
         }
         var socket = io();
         var counter = 0;
@@ -90,7 +96,7 @@
 
 
         socket.on('next_question_res', async function (data) {
-            if (data) {
+            if (data!="End") {
                 prepare_container.style.display = "";
                 const preparePromise = new Promise(function (result, error) {
                     //runTimer(prepare_timer, data.question.time_prepare, result);
@@ -117,8 +123,9 @@
 
                 quiz_container.style.display = "none";
                 result_container.style.display = "";
-                socket.emit("result_req", { pin: {{ pin }} , counter: counter
-        });
+                socket.emit("result_req", { pin: {{ pin }} , counter: counter});
+            } else {
+                
             }
         });
 

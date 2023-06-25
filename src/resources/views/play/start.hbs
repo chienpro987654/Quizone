@@ -48,12 +48,8 @@
 
         function clickAnswer(element){
             socket.emit("send_answer_req", {answer: element.value, pin: pin, name: nameUrl, counter: counter});
+            answer_container.style.display = "none";
         }
-
-        //answerA.onclick("click", clickAnswer(answerA));
-        //answerB.addEventListener("click", clickAnswer(answerB));
-        //answerC.addEventListener("click", clickAnswer(answerC));
-        //answerD.addEventListener("click", clickAnswer(answerD));
 
         socket.emit("game_alive", pin);
 

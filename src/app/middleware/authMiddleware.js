@@ -9,19 +9,27 @@ const requireAuth = (req, res, next) => {
         jwt.verify(token, 'quizone secret', async (err, decodedToken) => {
             if (err) {
                 console.log(err.message);
-                res.redirect('/auth/login');
+                // res.redirect('/auth/login');
+                res.json({
+                    status: "error",
+                    error: "AUTHENTICATION_FAILED",
+                })
             } else {
                 let user = await User.findById(decodedToken.id);
                 req.user = user;
                 console.log(decodedToken);
-                // next();
-                res.send("True");
+                next();
+                // res.send("True");
             }
         });
     } else {
         // res.redirect('/auth/login');
         // next();
         res.send("Error");
+        res.json({
+            status: "error",
+            error: "Not Login",
+        })
     }
 }
 

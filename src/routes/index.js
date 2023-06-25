@@ -100,8 +100,13 @@ function route(app) {
             if (doc) {
                 var questions = await Question.find({ quizId: doc.quiz_id });
 
-                socket.emit("next_question_res", { pin: data.pin, question: questions[data.counter] });
-                io.emit("next_question_res_player", { pin: data.pin, counter: data.counter });
+                if (questions.length<data.counter){
+                    socket.emit("next_question_res", "End");
+                } else {
+                    socket.emit("next_question_res", { pin: data.pin, question: questions[data.counter] });
+                    io.emit("next_question_res_player", { pin: data.pin, counter: data.counter });
+                }
+
                 // console.log("Show question");
             }
         });
@@ -163,6 +168,9 @@ function route(app) {
             var doc = await LiveGame.findOne({ pin: data.pin }).exec();
             if (doc) {
 
+                var questions = await Question.find({ quizId: doc.quiz_id });
+
+                answer = questions[data.counter].answer;
 
                 var counterA = 0;
                 var counterB = 0;
@@ -188,7 +196,7 @@ function route(app) {
                     }
                 }
 
-                socket.emit("result_res", { pin: data.pin, counterA: counterA, counterB: counterB, counterC: counterC, counterD: counterD });
+                socket.emit("result_res", { pin: data.pin, counterA: counterA, counterB: counterB, counterC: counterC, counterD: counterD, answer: answer });
             }
         });
 

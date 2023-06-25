@@ -63,7 +63,11 @@ let server = app.listen(port, () =>
   console.log(`App listening at http://localhost:${port}`)
 );
 
-let io = require('socket.io')(server);
+let io = require('socket.io')(server, {
+  cors: {
+    origin: "*"
+  }
+});
 app.set("io", io);
 
 // route init

@@ -25,7 +25,6 @@ class AuthController {
     }
 
     async login_post(req, res, next) {
-        console.log(req.body);
         const { email, password } = req.body;
         try {
             const user = await User.login(email, password);
@@ -73,7 +72,7 @@ class AuthController {
     }
 
     getUser(req, res) {
-        console.log(req.body);
+        // console.log(req.body);
         const token = req.headers.authorization;
         if (token) {
             jwt.verify(token, 'quizone secret', async (err, decodedToken) => {

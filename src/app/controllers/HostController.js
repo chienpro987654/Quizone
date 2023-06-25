@@ -7,7 +7,7 @@ const { isEmpty } = require('../utils/lib/validate');
 class HostController {
     async index(req, res, next) {
         try {
-            console.log(req.body);
+            // console.log(req);
             var quiz_id = req.query.quizId;
             if (!isEmpty(quiz_id)) {
                 const doc = await Quiz.findOne({ id: quiz_id });
@@ -29,8 +29,14 @@ class HostController {
                     liveGame.quiz_id = quiz_id;
                     liveGame.save();
 
-                    res.render("host/index", { quizId: quiz_id, pin: liveGame.pin });
-                    // res.send("error");
+                    // res.render("host/index", { quizId: quiz_id, pin: liveGame.pin });
+                    res.json({
+                        status: "success",
+                        data: {
+                            quizId: quiz_id,
+                            pin: liveGame.pin,
+                        }
+                    })
                 } else {
                     res.status(404).send("Not found.");
                 }

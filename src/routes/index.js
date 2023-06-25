@@ -10,6 +10,9 @@ const LiveGame = require("../../src/app/models/LiveGame");
 const { isNumber, isEmpty } = require('../app/utils/lib/validate');
 const { checkUser } = require('../app/middleware/authMiddleware');
 
+const { Timer } = require('../app/utils/classes/timer');
+const { castObject } = require('../app/models/User');
+
 function route(app) {
     app.get('*', checkUser);
     app.get("/", (req, res) => {
@@ -32,8 +35,11 @@ function route(app) {
 
     let io = app.get("io");
 
+    var timer = new Timer();
+
     io.on('connection', (socket) => {
         console.log("client connected: ", socket.id);
+
         socket.on("host_info_update", async (data) => {
             await LiveGame.findOneAndUpdate({ pin: data.pin }, { socket_id: socket.id });
             console.log(data);
@@ -42,7 +48,7 @@ function route(app) {
         //when player is waiting, if host close tab then redirect player to 'join' page
         socket.on("game_alive", async (data) => {
             var check = false;
-            console.log(data)
+            console.log("abc", data)
             const liveGame = await LiveGame.findOne({ pin: data });
             if (liveGame) {
                 check = true;
@@ -62,12 +68,12 @@ function route(app) {
                         socket.emit("player_join_res", { error: "This Name Is Used" });
                     }
                     else {
-                        players = players.concat(info.name);
+                        players = [...players, info.name]
                         console.log(players)
                         doc.player = players;
                         doc.save();
                         socket.emit("player_join_res", { name: info.name, pin: doc.pin });
-                        io.emit("player_join_host", { name: info.name });
+                        io.emit("player_join_host", { name: doc.player });
                     }
                 }
                 else {
@@ -97,14 +103,16 @@ function route(app) {
 
         socket.on('next_question_req', async function (data) {
             var doc = await LiveGame.findOne({ pin: data.pin }).exec();
+            console.log(data);
             if (doc) {
                 var questions = await Question.find({ quizId: doc.quiz_id });
 
-                if (questions.length<data.counter){
+                if (questions.length < data.counter) {
                     socket.emit("next_question_res", "End");
                 } else {
-                    socket.emit("next_question_res", { pin: data.pin, question: questions[data.counter] });
-                    io.emit("next_question_res_player", { pin: data.pin, counter: data.counter });
+                    socket.emit("next_question_res", { pin: data.pin, question: questions[data.counter], length: questions.length });
+                    timer.addTimer(data.pin, Date.now(), data.counter);
+                    io.emit("next_question_res_player", { pin: data.pin, counter: data.counter, time_prepare: questions[data.counter].time_prepare });
                 }
 
                 // console.log("Show question");
@@ -122,11 +130,24 @@ function route(app) {
                     var sAnswer = data.answer;
 
                     if (isEmpty(doc.data)) {
-                        // let text = '{"players":[' +
-                        //     '{"name":"' + data.name + '","answer":{"'+data.counter+'":"' + data.answer + '" }}' + ']}';
-                        // doc.data = text;
                         console.log("counter", sCounter);
-                        obj = {answers: [{"question": sCounter, "name": sName, "answer": sAnswer }] };
+
+                        var questions = await Question.find({ quizId: doc.quiz_id });
+                        var true_answer = questions[sCounter].answer;
+
+                        var point = 0;
+
+                        if (true_answer == sAnswer) {
+                            var answerTime = Date.now();
+                            var questionTime = timer.getTimer(data.pin);
+                            var time_prepare = questions[sCounter].time_prepare;
+                            var time_waiting = questions[sCounter].time_waiting;
+
+                            var tmpTime = Math.floor((answerTime - questionTime) / 1000);
+                            point = (time_waiting - (tmpTime - time_prepare)) * 100;
+                        }
+
+                        obj = { answers: [{ "question": sCounter, "name": sName, "answer": sAnswer, "point": point }] };
                         console.log(obj);
                         var text = JSON.stringify(obj);
                         doc.data = text;
@@ -149,7 +170,23 @@ function route(app) {
                             var tmp1 = data.counter;
                             var tmp2 = data.name;
                             var tmp3 = data.answer;
-                            var newObj = {"question": tmp1, "name": tmp2, "answer": tmp3 };
+
+                            var questions = await Question.find({ quizId: doc.quiz_id });
+                            var true_answer = questions[sCounter].answer;
+
+                            var point = 0;
+
+                            if (true_answer == sAnswer) {
+                                var answerTime = Date.now();
+                                var questionTime = timer.getTimer(data.pin);
+                                var time_prepare = questions[sCounter].time_prepare;
+                                var time_waiting = questions[sCounter].time_waiting;
+
+                                var tmpTime = Math.floor((answerTime - questionTime) / 1000);
+                                point = (time_waiting - (tmpTime - time_prepare)) * 100;
+                            }
+
+                            var newObj = { "question": tmp1, "name": tmp2, "answer": tmp3,"point": point };
                             obj.answers.push(newObj);
                             console.log("Not Change");
                         }
@@ -192,7 +229,7 @@ function route(app) {
                         }
                         if (obj.answers[i].answer == "D") {
                             counterD++;
-                        }obj.answers[i].answer
+                        } obj.answers[i].answer
                     }
                 }
 
@@ -208,7 +245,7 @@ function route(app) {
                 console.log("host_disconnect: ", socket.id);
                 if (doc.running == false) {
                     if (doc.finished == false) {
-                        // doc.delete();
+                        doc.delete();
                         console.log("delete game");
                         io.emit("host_disconnect", doc.pin);
                     }

@@ -19,13 +19,9 @@ const requireAuth = (req, res, next) => {
                 req.user = user;
                 console.log(decodedToken);
                 next();
-                // res.send("True");
             }
         });
     } else {
-        // res.redirect('/auth/login');
-        // next();
-        res.send("Error");
         res.json({
             status: "error",
             error: "Not Login",

@@ -29,4 +29,49 @@ function makeSlug(name) {
     return result;
 }
 
-module.exports = {isEmpty,checkEmptyForm,makeSlug,isNumber}
+function validateSheet(jsonData) {
+    var name = 0;
+    var des = 0;
+    var ques = 0;
+    for(var i=0;i<jsonData.length;i++){
+        if (jsonData[i].A=="name" && (!isEmpty(jsonData[i].B))){
+            name = 1;
+        }
+
+        if (jsonData[i].A=="description" && (!isEmpty(jsonData[i].B))){
+            des = 1;
+        }
+
+        if (jsonData[i].A=="question" && (!isEmpty(jsonData[i].B))){
+            ques++;
+            if (jsonData[i+1].A!="answerA" || (isEmpty(jsonData[i+1].B))){
+                ques--;
+                continue;
+            }
+            if (jsonData[i+2].A!="answerB" || (isEmpty(jsonData[i+2].B))){
+                ques--;
+                continue;
+            }
+            if (jsonData[i+3].A!="answerC" || (isEmpty(jsonData[i+3].B))){
+                ques--;
+                continue;
+            }
+            if (jsonData[i+4].A!="answerD" || (isEmpty(jsonData[i+4].B))){
+                ques--;
+                continue;
+            }
+
+            if (jsonData[i+5].A!="answer" || (isEmpty(jsonData[i+5].B))){
+                ques--;
+                continue;
+            }
+            i=i+5;
+        }
+    }
+    if (name && des && ques){
+        return true;
+    }
+    return false;
+}
+
+module.exports = {isEmpty,checkEmptyForm,makeSlug,isNumber,validateSheet}

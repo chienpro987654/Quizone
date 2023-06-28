@@ -11,7 +11,7 @@ const { isNumber, isEmpty } = require('../app/utils/lib/validate');
 const { checkUser } = require('../app/middleware/authMiddleware');
 
 const { Timer } = require('../app/utils/classes/timer');
-const { castObject } = require('../app/models/User');
+
 
 function route(app) {
     app.get('*', checkUser);
@@ -36,6 +36,7 @@ function route(app) {
     let io = app.get("io");
 
     var timer = new Timer();
+
 
     io.on('connection', (socket) => {
         console.log("client connected: ", socket.id);
@@ -105,9 +106,9 @@ function route(app) {
             var doc = await LiveGame.findOne({ pin: data.pin }).exec();
             console.log(data);
             if (doc) {
-                var questions = await Question.find({ quizId: doc.quiz_id });
+                var questions = await Question.find({ quiz_id: doc.quiz_id });
 
-                if (questions.length < data.counter) {
+                if (questions.length <= data.counter) {
                     socket.emit("next_question_res", "End");
                 } else {
                     socket.emit("next_question_res", { pin: data.pin, question: questions[data.counter], length: questions.length });
@@ -139,12 +140,23 @@ function route(app) {
 
                         if (true_answer == sAnswer) {
                             var answerTime = Date.now();
-                            var questionTime = timer.getTimer(data.pin);
+                            var questionTime = timer.getTimer(data.pin, data.counter);
                             var time_prepare = questions[sCounter].time_prepare;
                             var time_waiting = questions[sCounter].time_waiting;
 
                             var tmpTime = Math.floor((answerTime - questionTime) / 1000);
                             point = (time_waiting - (tmpTime - time_prepare)) * 100;
+                            console.log("timer1", answerTime);
+                            console.log("timer1", questionTime);
+                            console.log("timer1", tmpTime);
+                            console.log("timer1", point);
+                            console.log("timer", timer);
+
+                            if (point == 0) {
+                                socket.emit("send_answer_res",{result: false, point: point});
+                            } else {
+                                socket.emit("send_answer_res",{result: true, point: point});
+                            }
                         }
 
                         obj = { answers: [{ "question": sCounter, "name": sName, "answer": sAnswer, "point": point }] };
@@ -178,15 +190,25 @@ function route(app) {
 
                             if (true_answer == sAnswer) {
                                 var answerTime = Date.now();
-                                var questionTime = timer.getTimer(data.pin);
+                                var questionTime = timer.getTimer(data.pin, data.counter);
                                 var time_prepare = questions[sCounter].time_prepare;
                                 var time_waiting = questions[sCounter].time_waiting;
 
                                 var tmpTime = Math.floor((answerTime - questionTime) / 1000);
                                 point = (time_waiting - (tmpTime - time_prepare)) * 100;
+                                console.log("timer1", answerTime);
+                                console.log("timer1", questionTime);
+                                console.log("timer1", tmpTime);
+                                console.log("timer1", point);
                             }
 
-                            var newObj = { "question": tmp1, "name": tmp2, "answer": tmp3,"point": point };
+                            if (point == 0) {
+                                socket.emit("send_answer_res",{result: false, point: point});
+                            } else {
+                                socket.emit("send_answer_res",{result: true, point: point});
+                            }
+
+                            var newObj = { "question": tmp1, "name": tmp2, "answer": tmp3, "point": point };
                             obj.answers.push(newObj);
                             console.log("Not Change");
                         }
@@ -234,7 +256,27 @@ function route(app) {
                 }
 
                 socket.emit("result_res", { pin: data.pin, counterA: counterA, counterB: counterB, counterC: counterC, counterD: counterD, answer: answer });
+                io.emit("result_res_player",{pin: data.pin});
             }
+        });
+
+        socket.on('final_result_req', async function (data) {
+            var doc = await LiveGame.findOne({ pin: data.pin }).exec();
+            var result = [];
+            if (doc) {
+                var obj = JSON.parse(doc.data);
+                for (i in obj.answers) {
+                    // if (obj.answers[i].name == )
+                    var name = obj.answers[i].name;
+                    if (result[name] === null) {
+                        result[name] = obj.answers[i].point;
+                    }
+                    else {
+                        result[name] += obj.answers[i].point;
+                    }
+                }
+            }
+            socket.emit("final_result_res", { result });
         });
 
         socket.on('disconnect', async function () {

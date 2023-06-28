@@ -2,7 +2,7 @@ const path = require("path");
 const express = require("express");
 const morgan = require("morgan");
 const handlebars = require("express-handlebars");
-const fileUpload = require('express-fileupload');
+// const fileUpload = require('express-fileupload');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 var cors = require('cors')
@@ -23,12 +23,12 @@ app.use(session({
 
 app.use(cors());
 
-app.use(fileUpload({
-  limits: {
-    fileSize: 10000000, // Around 10MB
-  },
-  abortOnLimit: true,
-}));
+// app.use(fileUpload({
+//   limits: {
+//     fileSize: 10000000, // Around 10MB
+//   },
+//   abortOnLimit: true,
+// }));
 
 const route = require("./routes");
 

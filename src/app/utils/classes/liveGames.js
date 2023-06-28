@@ -1,5 +1,5 @@
 class LiveGames {
-    constructor () {
+    constructor() {
         this.games = [];
     }
 
@@ -8,24 +8,24 @@ class LiveGames {
     //     this.games.push(game);
     //     return game;
     // }
-    addGame(pin,quizId, hostId){
-        var game = {pin, quizId, hostId};
+    addGame(hostId, quizId, socketId, pin, finished, running) {
+        var game = { hostId, quizId, socketId, pin, finished, running };
         this.games.push(game);
         return game;
     }
 
-    updateGame(pin,socket_id){
+    updateGame(pin, socket_id) {
         var game = this.getGame(pin);
 
         if (game) {
             game.socket_id = socket_id;
         }
     }
-    
-    removeGame(hostId){
+
+    removeGame(hostId) {
         var game = this.getGame(hostId);
-        
-        if(game){
+
+        if (game) {
             this.games = this.games.filter((game) => game.hostId !== hostId);
         }
         return game;
@@ -35,12 +35,13 @@ class LiveGames {
     //     return this.games.filter((game) => game.hostId === hostId)[0];
     // }
 
-    getGame(pin){
+    getGame(pin) {
         return this.games.filter((game) => game.pin === pin)[0];
     }
-    isDuplicate(pin){
-        return this.games.filter((game) => game.pin === pin);
-    }
+
+    // isDuplicate(pin) {
+    //     return this.games.filter((game) => game.pin === pin);
+    // }
 }
 
-module.exports = {LiveGames};
+module.exports = { LiveGames };

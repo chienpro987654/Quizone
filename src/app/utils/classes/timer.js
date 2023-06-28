@@ -9,8 +9,9 @@ class Timer {
         return timer;
     }
 
-    getTimer(pin){
-        return this.timers.filter((timer) => timer.pin === pin)[0].timer;
+    getTimer(pin, counter){
+        var obj = this.timers.filter((timer) => timer.pin === pin && timer.counter === counter)[0];
+        return (obj) ? obj.timer : null;
     }
 
 }

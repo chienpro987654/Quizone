@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const Question = new Schema({
     quiz_id: String,
-    image: String,
+    image: {type: String, default: ""},
     question: {type: String, require: true, maxLength: 255},
     answerA: {type: String, require: true, maxLength: 255},
     answerB: {type: String, require: true, maxLength: 255},

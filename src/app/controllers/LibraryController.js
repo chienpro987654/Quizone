@@ -3,7 +3,8 @@ const Question = require("../models/Question");
 
 class LibraryController {
     index(req, res, next) {
-        Quiz.find({})
+        const email = req.user.email;
+        Quiz.find({owner: email}).sort([['createdAt', -1]])
             .then(quizzes => {
                 quizzes = quizzes.map(quizzes => quizzes.toObject());
                 // res.render('library/index', { quizzes });
@@ -19,9 +20,10 @@ class LibraryController {
 
     view(req, res, next) {
         try {
-            var arrPath = req.path.split("/");
-            var _slug = arrPath[arrPath.length - 1];
-            Quiz.findOne({ slug: _slug }).lean().exec(function (err, doc) {
+            // var arrPath = req.path.split("/");
+            // var _slug = arrPath[arrPath.length - 1];
+            var _id = req.params.id;
+            Quiz.findOne({ id: _id }).lean().exec(function (err, doc) {
                 var quiz = doc;
                 // console.log(quiz);
                 var _quizId = quiz._id.toString();

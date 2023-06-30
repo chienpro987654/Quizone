@@ -11,7 +11,7 @@ const LiveGame = new Schema({
     finished: {type: Boolean, default: false},
     running: {type: Boolean, default: false},
     player: {type: Array, default: []},
-    data: {type: String, default: ""},
+    data: {type: Array, default: []},
 },{
     timestamps: true,
 })

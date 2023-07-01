@@ -8,8 +8,10 @@ const ObjectId = Schema.ObjectId;
 const Quiz = new Schema({
     name: {type: String, require: true, maxLength: 255},
     description: {type: String, default: "", maxLength: 1000},
-    slug: {type: String, unique: true},
+    slug: {type: String,slug: "name", unique: true},
     owner: {type: String},
+    thumbnail_uri: {type: String,default: ""},
+    theme: {type: String, default: ""},
     time_prepare: {type: Number, default: 10},
     time_waiting: {type: Number, default: 20},
 },{

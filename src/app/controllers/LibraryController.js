@@ -4,7 +4,7 @@ const Question = require("../models/Question");
 class LibraryController {
     index(req, res, next) {
         const email = req.user.email;
-        Quiz.find({owner: email}).sort([['createdAt', -1]])
+        Quiz.find({ owner: email }).sort([['createdAt', -1]])
             .then(quizzes => {
                 quizzes = quizzes.map(quizzes => quizzes.toObject());
                 // res.render('library/index', { quizzes });
@@ -18,30 +18,30 @@ class LibraryController {
             .catch(next);
     }
 
-    view(req, res, next) {
+    async view(req, res, next) {
         try {
-            // var arrPath = req.path.split("/");
-            // var _slug = arrPath[arrPath.length - 1];
-            var _id = req.params.id;
-            Quiz.findOne({ id: _id }).lean().exec(function (err, doc) {
-                var quiz = doc;
+            var arrPath = req.path.split("/");
+            var _slug = arrPath[arrPath.length - 1];
+            // var _id = req.params.id;
+            Quiz.findOne({ slug: _slug }).lean().exec( async function (err, quiz) {
+                if (err){
+                    res.json({
+                        status: "error",
+                        error,
+                    });
+                }
+
                 // console.log(quiz);
                 var _quizId = quiz._id.toString();
-                console.log(_quizId);
-                Question.find({ quiz_id: _quizId })
-                    .then(questions => {
-                        questions = questions.map(questions => questions.toObject());
-                        console.log(questions);
-                        // res.render('library/view', { questions, quiz });
-                        res.json({
-                            status: "success",
-                            data: {
-                                quiz: quiz,
-                                questions: questions,
-                            },
-                        })
-                    })
-                    .catch(next);
+                console.log("view",quiz);
+                const questions = await Question.find({ quiz_id: _quizId }).sort([['order', 'asc']]);
+                res.json({
+                    status: "success",
+                    data: {
+                        quiz: quiz,
+                        questions: questions,
+                    },
+                });
 
             });
         } catch (error) {

@@ -23,77 +23,56 @@ class QuizController {
 
     async save(req, res) {
         try {
-            const formData = req.body;
-            var content = formData.question;
-            var answerA = formData.answerA;
-            var answerB = formData.answerB;
-            var answerC = formData.answerC;
-            var answerD = formData.answerD;
-            var answer = formData.answer;
-            var haveFile = formData.haveFile;
-
-            console.log(formData);
-            console.log(content);
+            const jsonData = req.body;
+            // console.log("json",jsonData);
 
             const quiz = new Quiz();
-            quiz.name = formData.title;
+            quiz.name = jsonData.title;
+            quiz.description = jsonData.description;
+            quiz.thumbnail_uri = jsonData.thumbnailUri;
+            quiz.theme = jsonData.theme;
             quiz.owner = req.user.email;
 
-            // create unique slug for quiz
-            var tmp_slug = quiz.name.replace(" ", "-");
+            quiz.save();
+            // console.log("quiz",quiz);
+            
+            var questions = jsonData.questions;
+            
+            // console.log("ques",questions);
 
-            const isDuplicate = await Quiz.exists({ slug: tmp_slug }).exec();
-
-            if (isDuplicate) {
-                quiz.slug = makeSlug(quiz.name);
-            }
-            else {
-                quiz.slug = tmp_slug;
-            }
-
-            // quiz.save();
-
-            var fileCount = 0;
-
-            for (var i = 0; i < content.length; i++) {
+            var counter = 0;
+            questions.forEach(element => {
                 const question = new Question();
                 question.quiz_id = quiz.id;
+                question.order = counter;
+                question.question = element.question;
+                question.answerA = element.selections[0];
+                question.answerB = element.selections[1];
+                question.answerC = element.selections[2];
+                question.answerD = element.selections[3];
+                question.answer = element.answer;
+                question.image_uri = element.imageUri;
+                question.time_prepare = element.readingTime;
+                question.time_waiting = element.timeLimit;
 
+                counter++;
 
-                question.question = content[i];
-                question.answerA = answerA[i];
-                question.answerB = answerB[i];
-                question.answerC = answerC[i];
-                question.answerD = answerD[i];
-                question.answer = answer[i];
+                question.save();
+                // console.log(question.question,question);
+            });
 
-                // if (haveFile[i] == 1) {
-                //     try {
-                //         const { image } = req.files;
-                //         var file = image[fileCount];
-                //         fileCount++;
-                //         if (file) {
-                //             if (file.mimetype.includes("image")) {
-                //                 var arrName = file.name.split(".");
-                //                 var ext = arrName[arrName.length - 1];
-                //                 var name = question.id + "." + ext;
-                //                 file.mv(__dirname + '/../../public/images/' + name);
-                //                 question.image = name;
-                //             }
-                //         }
-                //     }
-                //     catch (e) {
-                //         question.image = "";
-                //     }
-                // }
-                // question.save();
-            }
-
-            res.redirect(`/library/view/${quiz.slug}`);
-
-            // res.json(req.body);
+            res.json({
+                status: "success",
+                data : {
+                    quiz,
+                }
+            });
         } catch (error) {
             console.log(error);
+            res.json({
+                status: "error",
+                error: error,
+            })
         }
     }
 
@@ -134,18 +113,6 @@ class QuizController {
                     if (name && des) {
                         break;
                     }
-                }
-
-                // create unique slug for quiz
-                var tmp_slug = quiz.name.replace(" ", "-");
-
-                const isDuplicate = await Quiz.exists({ slug: tmp_slug }).exec();
-
-                if (isDuplicate) {
-                    quiz.slug = makeSlug(quiz.name);
-                }
-                else {
-                    quiz.slug = tmp_slug;
                 }
 
                 quiz.save();
@@ -222,13 +189,14 @@ class QuizController {
             const _id = req.query.id;
             console.log(req.query);
             if (_id) {
-                var doc = await Quiz.findOne({ id: _id }).exec();
+                var doc = await Quiz.findOne({ _id: _id }).exec();
                 if (doc) {
+                    console.log("delete",doc);
                     doc.delete();
                     await Question.deleteMany({ quiz_id: _id });
                     res.json({
                         status: "success",
-                        error: "Delete Successfully",
+                        data: "Delete Successfully",
                     })
                 } else {
                     console.log(error);

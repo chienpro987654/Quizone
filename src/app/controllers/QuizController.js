@@ -3,11 +3,15 @@ const { default: mongoose } = require("mongoose");
 const Question = require("../models/Question");
 const { format } = require("morgan");
 const Quiz = require("../models/Quiz");
-const { isEmpty, checkEmptyForm, makeSlug, validateSheet } = require("../utils/lib/validate");
+const {
+    isEmpty,
+    checkEmptyForm,
+    makeSlug,
+    validateSheet,
+} = require("../utils/lib/validate");
 const { checkUser } = require("../middleware/authMiddleware");
-const xlsx = require('xlsx');
+const xlsx = require("xlsx");
 class QuizController {
-
     //Get /Create
     // index(req, res) {
     //     res.render("create", { layout: false });
@@ -24,7 +28,7 @@ class QuizController {
     async save(req, res) {
         try {
             const jsonData = req.body.data;
-            // console.log("json",jsonData);
+            // console.log("json", jsonData.data);
 
             const quiz = new Quiz();
             quiz.name = jsonData.title;
@@ -35,13 +39,13 @@ class QuizController {
 
             quiz.save();
             // console.log("quiz",quiz);
-            
+
             var questions = jsonData.questions;
-            
-            // console.log("ques",questions);
+
+            // console.log("ques", questions);
 
             var counter = 0;
-            questions.forEach(element => {
+            questions.forEach((element) => {
                 const question = new Question();
                 question.quiz_id = quiz.id;
                 question.order = counter;
@@ -70,16 +74,16 @@ class QuizController {
 
             res.json({
                 status: "success",
-                data : {
+                data: {
                     quiz,
-                }
+                },
             });
         } catch (error) {
             console.log(error);
             res.json({
                 status: "error",
                 error: error,
-            })
+            });
         }
     }
 
@@ -89,10 +93,12 @@ class QuizController {
             console.log("run");
             console.log(req.file);
             if (req.file) {
-                const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+                const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
-                const jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 'A' });
+                const jsonData = xlsx.utils.sheet_to_json(worksheet, {
+                    header: "A",
+                });
 
                 console.log("data excel", jsonData);
                 var test = validateSheet(jsonData);
@@ -101,13 +107,13 @@ class QuizController {
                     res.json({
                         status: "error",
                         error: "Invalid Format",
-                    })
+                    });
                 }
 
                 const quiz = new Quiz();
                 for (var i = 0; i < jsonData.length; i++) {
                     var name = 0;
-                    var des = 0
+                    var des = 0;
                     if (jsonData[i].A == "name") {
                         quiz.name = jsonData[i].B;
                         name = 1;
@@ -144,16 +150,15 @@ class QuizController {
                     status: "success",
                     data: {
                         quiz: quiz,
-                    }
-                })
+                    },
+                });
             }
-
         } catch (error) {
             console.log(error);
             res.json({
                 status: "error",
                 error: error,
-            })
+            });
         }
     }
 
@@ -174,20 +179,19 @@ class QuizController {
                 var image = formData.image;
 
                 var questions = await Question.find({ quiz_id: doc.id });
-
             } else {
                 console.log(error);
                 res.json({
                     status: "error",
                     error: "Document Not Found",
-                })
+                });
             }
         } catch (error) {
             console.log(error);
             res.json({
                 status: "error",
                 error: error,
-            })
+            });
         }
     }
 
@@ -198,39 +202,37 @@ class QuizController {
             if (_id) {
                 var doc = await Quiz.findOne({ _id: _id }).exec();
                 if (doc) {
-                    console.log("delete",doc);
+                    console.log("delete", doc);
                     doc.delete();
                     await Question.deleteMany({ quiz_id: _id });
                     const email = req.user.email;
                     var quizzes = await Quiz.find({ owner: email }).sort([['createdAt', -1]]);
                     res.json({
                         status: "success",
-                        data: {
-                            quizzes,
-                        }
+                        data: "Delete Successfully",
                     })
                 } else {
                     console.log(error);
                     res.json({
                         status: "error",
                         error: "Document Not Found",
-                    })
+                    });
                 }
             } else {
                 console.log(error);
                 res.json({
                     status: "error",
                     error: "Invalid Request",
-                })
+                });
             }
         } catch (error) {
             console.log(error);
             res.json({
                 status: "error",
                 error: error,
-            })
+            });
         }
     }
 }
 
-module.exports = new QuizController;
+module.exports = new QuizController();

@@ -23,14 +23,14 @@ class QuizController {
 
     async save(req, res) {
         try {
-            const jsonData = req.body;
+            const jsonData = req.body.data;
             // console.log("json",jsonData);
 
             const quiz = new Quiz();
             quiz.name = jsonData.title;
             quiz.description = jsonData.description;
-            quiz.thumbnail_uri = jsonData.thumbnailUri;
-            quiz.theme = jsonData.theme;
+            quiz.thumbnail_uri = jsonData.thumbnailUri.imgSrc;
+            quiz.theme = jsonData.theme.imgUrl;
             quiz.owner = req.user.email;
 
             quiz.save();
@@ -48,8 +48,15 @@ class QuizController {
                 question.question = element.question;
                 question.answerA = element.selections[0];
                 question.answerB = element.selections[1];
-                question.answerC = element.selections[2];
-                question.answerD = element.selections[3];
+
+                if (element.selections[2]!=null){
+                    question.answerC = element.selections[2];
+                }
+
+                if (element.selections[3]!=null){
+                    question.answerD = element.selections[3];
+                }
+
                 question.answer = element.answer;
                 question.image_uri = element.imageUri;
                 question.time_prepare = element.readingTime;
@@ -194,9 +201,13 @@ class QuizController {
                     console.log("delete",doc);
                     doc.delete();
                     await Question.deleteMany({ quiz_id: _id });
+                    const email = req.user.email;
+                    var quizzes = await Quiz.find({ owner: email }).sort([['createdAt', -1]]);
                     res.json({
                         status: "success",
-                        data: "Delete Successfully",
+                        data: {
+                            quizzes,
+                        }
                     })
                 } else {
                     console.log(error);

@@ -147,11 +147,11 @@ function route(app) {
 
                         var tmpTime = Math.floor((answerTime - questionTime) / 1000);
                         point = (time_waiting - (tmpTime - time_prepare)) * 100;
-                        console.log("timer1", answerTime);
-                        console.log("timer1", questionTime);
-                        console.log("timer1", tmpTime);
-                        console.log("timer1", point);
-                        console.log("timer", timer);
+                        // console.log("timer1", answerTime);
+                        // console.log("timer1", questionTime);
+                        // console.log("timer1", tmpTime);
+                        // console.log("timer1", point);
+                        // console.log("timer", timer);
 
                     }
 
@@ -246,7 +246,7 @@ function route(app) {
                 console.log(topResult);
             }
             socket.emit("final_result_res", { result: topResult });
-            io.emit("final_result_res_player", { pin: pin });
+            io.emit("final_result_res_player", { pin: data.pin });
         });
 
         socket.on('disconnect', async function () {
@@ -255,18 +255,16 @@ function route(app) {
             var doc = await LiveGame.findOne({ socket_id: socket.id }).exec();
             if (doc) {
                 console.log("host_disconnect: ", socket.id);
-                if (doc.running == false) {
-                    if (doc.finished == false) {
-                        doc.delete();
-                        console.log("delete game");
-                        io.emit("host_disconnect", doc.pin);
-                    }
-                    else {
-                        //game finished so delete pin from that game
-                        io.emit("host_disconnect", doc.pin);
-                        doc.pin = 0;
-                        doc.save();
-                    }
+                if (doc.finished == false) {
+                    console.log("delete game due to reload or bad connection", doc.pin);
+                    io.emit("host_disconnect", doc.pin);
+                    doc.delete();
+                }
+                else {
+                    //game finished so delete pin from that game
+                    io.emit("host_disconnect after finishing", doc.pin);
+                    doc.pin = 0;
+                    doc.save();
                 }
             } else {
                 console.log("client disconnected: ", socket.id);

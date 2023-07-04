@@ -23,10 +23,10 @@ class LibraryController {
         try {
             // var arrPath = req.path.split("/");
             // var _slug = arrPath[arrPath.length - 1];
-            var _id = req.params.id;
-            var quiz = await Quiz.findOne({ id: _id });
+            var id = req.query.id;
+            var quiz = await Quiz.findOne({ _id: id });
+            console.log("view",id,quiz);
             if (quiz) {
-                console.log(quiz);
                 var _quizId = quiz._id.toString();
                 console.log("view", quiz);
                 const questions = await Question.find({ quiz_id: _quizId }).sort([['order', 'asc']]);

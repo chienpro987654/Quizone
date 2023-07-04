@@ -12,8 +12,6 @@ const Quiz = new Schema({
     owner: {type: String},
     thumbnail_uri: {type: String,default: ""},
     theme: {type: String, default: ""},
-    time_prepare: {type: Number, default: 10},
-    time_waiting: {type: Number, default: 20},
 },{
     timestamps: true,
 })

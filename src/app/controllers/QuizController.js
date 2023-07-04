@@ -5,8 +5,6 @@ const { format } = require("morgan");
 const Quiz = require("../models/Quiz");
 const {
     isEmpty,
-    checkEmptyForm,
-    makeSlug,
     validateSheet,
 } = require("../utils/lib/validate");
 const { checkUser } = require("../middleware/authMiddleware");

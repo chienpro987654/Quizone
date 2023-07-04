@@ -10,7 +10,6 @@ const {requireAuth} = require('../app/middleware/authMiddleware');
 
 //get method
 router.get('/createNewQuiz',requireAuth,quizController.createNewQuiz);
-// router.get('/update/',requireAuth,quizController.createNewQuiz);
 router.get('/',requireAuth,quizController.index);
 
 //post method

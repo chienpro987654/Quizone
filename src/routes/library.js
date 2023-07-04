@@ -5,9 +5,9 @@ const libraryController = require("../app/controllers/LibraryController");
 
 const {requireAuth} = require('../app/middleware/authMiddleware');
 
-// router.get('/createNewQuiz',libraryController.createNewQuiz);
-// router.post('/save',libraryController.save);
-router.get('/',requireAuth, libraryController.index);
+router.get('/listReport',requireAuth,libraryController.listReport);
+router.get('/viewReport',requireAuth,libraryController.viewReport);
 router.get('/view/:slug',requireAuth,libraryController.view);
+router.get('/',requireAuth, libraryController.index);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const Quiz = require("../models/Quiz");
 const Question = require("../models/Question");
+const LiveGame = require("../models/LiveGame");
 
 class LibraryController {
     index(req, res, next) {
@@ -54,6 +55,60 @@ class LibraryController {
 
         // console.log(doc);
         // res.render('library/view');
+    }
+
+    async listReport(req,res){
+        const quiz_id = req.query.id;
+        // console.log(quiz_id);
+        var liveGames = await LiveGame.find({ quiz_id: quiz_id, finished: true }).sort([['createdAt', 'desc']]);
+
+        if (liveGames){
+            console.log("Live Game",liveGames);
+
+            var reports = [];
+            // var quiz = await Quiz.findOne({ _id: quiz_id});
+
+            // results.quiz = quiz;
+
+            
+            liveGames.forEach(element =>{
+                var report = {};
+                report.id = element._id;
+                report.createdAt = element.createdAt;
+                // report.data = element.data;
+
+                reports.push(report);
+            });
+            console.log("result",reports);
+            res.json({
+                status: "success",
+                data: {
+                    reports: reports,
+                },
+            });
+        }
+    }
+
+    async viewReport(req,res){
+        try {
+            const quiz_id = req.query.id;
+            var doc = await LiveGame.findOne({id: quiz_id});
+            if (doc){
+                var data = {id: doc._id,data: doc.data};
+                res.json({
+                    status: "success",
+                    data:{
+                        report: data,
+                    }
+                });
+            }
+        } catch (error) {
+            console.log(error);
+            res.json({
+                status: "error",
+                error: error,
+            });
+        }
     }
 }
 

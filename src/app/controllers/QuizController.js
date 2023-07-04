@@ -26,12 +26,17 @@ class QuizController {
     async save(req, res) {
         try {
             const jsonData = req.body.data;
-            // console.log("json", jsonData.data);
+            console.log("json", jsonData.data);
 
             const quiz = new Quiz();
             quiz.name = jsonData.title;
             quiz.description = jsonData.description;
-            quiz.thumbnail_uri = jsonData.thumbnailUri.imgSrc;
+            console.log(jsonData.thumbnailUri=="");
+            if (jsonData.thumbnailUri==''){
+                quiz.thumbnail_uri = "";
+            } else {
+                quiz.thumbnail_uri = jsonData.thumbnailUri.imgSrc;
+            }
             quiz.theme = jsonData.theme.imgUrl;
             quiz.owner = req.user.email;
 
@@ -162,28 +167,64 @@ class QuizController {
 
     async update(req, res) {
         try {
-            const id = req.params.id;
-            var doc = await Quiz.findOne({ id: id }).exec();
-            if (doc) {
-                const formData = req.body;
-                quiz.title = formData.title;
-
-                var content = formData.question;
-                var answerA = formData.answerA;
-                var answerB = formData.answerB;
-                var answerC = formData.answerC;
-                var answerD = formData.answerD;
-                var answer = formData.answer;
-                var image = formData.image;
-
-                var questions = await Question.find({ quiz_id: doc.id });
+            const _id = req.query.id;
+            const jsonData = req.body.data;
+            // console.log("json", jsonData.data);
+            
+            var _name = jsonData.title;
+            var _description = jsonData.description;
+            if (jsonData.thumbnailUri==""){
+                var _thumbnail_uri = "";
             } else {
-                console.log(error);
-                res.json({
-                    status: "error",
-                    error: "Document Not Found",
-                });
+                var _thumbnail_uri = jsonData.thumbnailUri.imgSrc;
             }
+            var _theme = jsonData.theme.imgUrl;
+            var _owner = req.user.email;
+
+            var quiz = await Quiz.findOneAndUpdate({_id: _id},{name: _name,description: _description,thumbnail_uri: _thumbnail_uri, theme: _theme, owner: _owner});
+            
+            // quiz.save();
+            console.log("quiz",_id,quiz);
+
+            var questions = jsonData.questions;
+
+            // console.log("ques", questions);
+
+            await Question.deleteMany({ quiz_id: _id });
+            var counter = 0;
+            questions.forEach((element) => {
+                const question = new Question();
+                question.quiz_id = quiz.id;
+                question.order = counter;
+                question.question = element.question;
+                question.answerA = element.selections[0];
+                question.answerB = element.selections[1];
+
+                if (element.selections[2]!=null){
+                    question.answerC = element.selections[2];
+                }
+
+                if (element.selections[3]!=null){
+                    question.answerD = element.selections[3];
+                }
+
+                question.answer = element.answer;
+                question.image_uri = element.imageUri;
+                question.time_prepare = element.readingTime;
+                question.time_waiting = element.timeLimit;
+
+                counter++;
+
+                question.save();
+                // console.log(question.question,question);
+            });
+
+            res.json({
+                status: "success",
+                data: {
+                    quiz,
+                },
+            });
         } catch (error) {
             console.log(error);
             res.json({
@@ -204,10 +245,12 @@ class QuizController {
                     doc.delete();
                     await Question.deleteMany({ quiz_id: _id });
                     const email = req.user.email;
-                    var quizzes = await Quiz.find({ owner: email }).sort([['createdAt', -1]]);
+                    var quizzes = await Quiz.find({ owner: email }).sort([['createdAt','desc']]);
                     res.json({
                         status: "success",
-                        data: "Delete Successfully",
+                        data: {
+                            quizzes,
+                        }
                     })
                 } else {
                     console.log(error);

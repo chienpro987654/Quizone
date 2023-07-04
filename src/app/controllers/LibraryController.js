@@ -21,20 +21,14 @@ class LibraryController {
 
     async view(req, res, next) {
         try {
-            var arrPath = req.path.split("/");
-            var _slug = arrPath[arrPath.length - 1];
-            // var _id = req.params.id;
-            Quiz.findOne({ slug: _slug }).lean().exec( async function (err, quiz) {
-                if (err){
-                    res.json({
-                        status: "error",
-                        error,
-                    });
-                }
-
-                // console.log(quiz);
+            // var arrPath = req.path.split("/");
+            // var _slug = arrPath[arrPath.length - 1];
+            var _id = req.params.id;
+            var quiz = await Quiz.findOne({ id: _id });
+            if (quiz) {
+                console.log(quiz);
                 var _quizId = quiz._id.toString();
-                console.log("view",quiz);
+                console.log("view", quiz);
                 const questions = await Question.find({ quiz_id: _quizId }).sort([['order', 'asc']]);
                 res.json({
                     status: "success",
@@ -44,11 +38,11 @@ class LibraryController {
                     },
                 });
 
-            });
+            }
         } catch (error) {
             console.log(error);
             res.json({
-                status: "success",
+                status: "error",
                 error: error,
             })
         }
@@ -57,21 +51,21 @@ class LibraryController {
         // res.render('library/view');
     }
 
-    async listReport(req,res){
+    async listReport(req, res) {
         const quiz_id = req.query.id;
         // console.log(quiz_id);
         var liveGames = await LiveGame.find({ quiz_id: quiz_id, finished: true }).sort([['createdAt', 'desc']]);
 
-        if (liveGames){
-            console.log("Live Game",liveGames);
+        if (liveGames) {
+            console.log("Live Game", liveGames);
 
             var reports = [];
             // var quiz = await Quiz.findOne({ _id: quiz_id});
 
             // results.quiz = quiz;
 
-            
-            liveGames.forEach(element =>{
+
+            liveGames.forEach(element => {
                 var report = {};
                 report.id = element._id;
                 report.createdAt = element.createdAt;
@@ -79,7 +73,7 @@ class LibraryController {
 
                 reports.push(report);
             });
-            console.log("result",reports);
+            console.log("result", reports);
             res.json({
                 status: "success",
                 data: {
@@ -89,15 +83,15 @@ class LibraryController {
         }
     }
 
-    async viewReport(req,res){
+    async viewReport(req, res) {
         try {
             const quiz_id = req.query.id;
-            var doc = await LiveGame.findOne({id: quiz_id});
-            if (doc){
-                var data = {id: doc._id,data: doc.data};
+            var doc = await LiveGame.findOne({ id: quiz_id });
+            if (doc) {
+                var data = { id: doc._id, data: doc.data };
                 res.json({
                     status: "success",
-                    data:{
+                    data: {
                         report: data,
                     }
                 });

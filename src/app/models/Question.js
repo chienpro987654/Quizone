@@ -5,6 +5,7 @@ const Question = new Schema({
     quiz_id: String,
     order: {type: Number, default: 0},
     image_uri: {type: String, default: ""},
+    type: {type: String, default: "quiz"},
     question: {type: String, require: true, maxLength: 255},
     answerA: {type: String, maxLength: 255},
     answerB: {type: String, maxLength: 255},

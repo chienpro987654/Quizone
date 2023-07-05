@@ -27,6 +27,8 @@ class QuizController {
         try {
             const jsonData = req.body.data;
             console.log("json", jsonData.data);
+            // const jsonData = req.body;
+            // console.log("json", jsonData);
 
             const quiz = new Quiz();
             quiz.name = jsonData.title;
@@ -52,6 +54,7 @@ class QuizController {
                 const question = new Question();
                 question.quiz_id = quiz.id;
                 question.order = counter;
+                question.type = element.type;
                 question.question = element.question;
                 question.answerA = element.selections[0];
                 question.answerB = element.selections[1];
@@ -196,6 +199,7 @@ class QuizController {
                 const question = new Question();
                 question.quiz_id = quiz.id;
                 question.order = counter;
+                question.type = element.type;
                 question.question = element.question;
                 question.answerA = element.selections[0];
                 question.answerB = element.selections[1];

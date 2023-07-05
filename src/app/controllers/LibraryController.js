@@ -104,6 +104,28 @@ class LibraryController {
             });
         }
     }
+
+    async getTheme(req, res) {
+        try {
+            const quiz_id = req.query.id;
+            var doc = await Quiz.findOne({ _id: quiz_id });
+            console.log("get theme");
+            if (doc){
+                res.json({
+                    status: "success",
+                    data: {
+                        theme: doc.theme,
+                    }
+                });
+            }
+        } catch (error) {
+            console.log(error);
+            res.json({
+                status: "error",
+                error: error,
+            });
+        }
+    }
 }
 
 module.exports = new LibraryController;

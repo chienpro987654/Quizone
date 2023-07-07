@@ -93,10 +93,20 @@ function route(app) {
         socket.on('host_start', async function (data) {
             var doc = await LiveGame.findOne({ pin: data.pin }).exec();
 
-            // console.log(doc);
-            // console.log(data.toString());
+            console.log("host_start", data.pin);
             if (doc) {
                 doc.running = true;
+                if (data.mix == true) {
+                    const count = await Question.count({ quiz_id: doc.quiz_id });
+                    const array = Array.from({ length: count }, (_, i) => i.toString());
+
+                    // Fisher-Yates shuffle algorithm
+                    for (let i = array.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [array[i], array[j]] = [array[j], array[i]];
+                    }
+                    doc.mix = array;
+                }
                 doc.save();
                 io.emit("host_start", { pin: data.pin });
             }
@@ -106,14 +116,21 @@ function route(app) {
             var doc = await LiveGame.findOne({ pin: data.pin }).exec();
             console.log(data);
             if (doc) {
-                var questions = await Question.find({ quiz_id: doc.quiz_id });
+                var questions = await Question.find({ quiz_id: doc.quiz_id }).sort([['order', 'asc']]);;
 
                 if (questions.length <= data.counter) {
                     socket.emit("next_question_res", "End");
                 } else {
-                    socket.emit("next_question_res", { pin: data.pin, question: questions[data.counter], length: questions.length });
-                    timer.addTimer(data.pin, Date.now(), data.counter);
-                    io.emit("next_question_res_player", { pin: data.pin, counter: data.counter, time_prepare: questions[data.counter].time_prepare });
+                    console.log(doc.mix[0]);
+                    if (!isEmpty(doc.mix)) {
+                        socket.emit("next_question_res", { pin: data.pin, question: questions[doc.mix[data.counter]], length: questions.length });
+                        timer.addTimer(data.pin, Date.now(), data.counter);
+                        io.emit("next_question_res_player", { pin: data.pin, counter: data.counter, time_prepare: questions[doc.mix[data.counter]].time_prepare });
+                    } else {
+                        socket.emit("next_question_res", { pin: data.pin, question: questions[data.counter], length: questions.length });
+                        timer.addTimer(data.pin, Date.now(), data.counter);
+                        io.emit("next_question_res_player", { pin: data.pin, counter: data.counter, time_prepare: questions[data.counter].time_prepare });
+                    }
                 }
 
                 // console.log("Show question");
@@ -134,8 +151,8 @@ function route(app) {
 
                     console.log("Save Answer with: ", sCounter, sName, sAnswer);
 
-                    var questions = await Question.find({ quiz_id: doc.quiz_id });
-                    var true_answer = questions[sCounter].answer;
+                    var questions = await Question.find({ quiz_id: doc.quiz_id }).sort([['order', 'asc']]);
+                    var true_answer = (isEmpty(doc.mix)) ? questions[sCounter].answer : questions[doc.mix[sCounter]].answer;
 
                     var point = 0;
 
@@ -241,7 +258,7 @@ function route(app) {
                 doc.running = false;
                 doc.save();
 
-                console.log(aResult);           
+                console.log(aResult);
                 var topResult = [...aResult].sort((first, second) => second.point - first.point).splice(0, 3);
                 console.log(topResult);
             }

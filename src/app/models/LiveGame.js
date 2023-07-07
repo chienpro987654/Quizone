@@ -10,6 +10,7 @@ const LiveGame = new Schema({
     pin: {type: String, maxLength: 6},
     finished: {type: Boolean, default: false},
     running: {type: Boolean, default: false},
+    mix: {type: Array, default: []},
     player: {type: Array, default: []},
     data: {type: Array, default: []},
 },{

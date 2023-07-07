@@ -25,7 +25,7 @@ class LibraryController {
             // var _slug = arrPath[arrPath.length - 1];
             var id = req.query.id;
             var quiz = await Quiz.findOne({ _id: id });
-            console.log("view",id,quiz);
+            console.log("view", id, quiz);
             if (quiz) {
                 var _quizId = quiz._id.toString();
                 console.log("view", quiz);
@@ -60,10 +60,6 @@ class LibraryController {
             console.log("Live Game", liveGames);
 
             var reports = [];
-            // var quiz = await Quiz.findOne({ _id: quiz_id});
-
-            // results.quiz = quiz;
-
 
             liveGames.forEach(element => {
                 var report = {};
@@ -110,12 +106,41 @@ class LibraryController {
             const quiz_id = req.query.id;
             var doc = await Quiz.findOne({ _id: quiz_id });
             console.log("get theme");
-            if (doc){
+            if (doc) {
                 res.json({
                     status: "success",
                     data: {
                         theme: doc.theme,
                     }
+                });
+            }
+        } catch (error) {
+            console.log(error);
+            res.json({
+                status: "error",
+                error: error,
+            });
+        }
+    }
+
+    async setFavorite(req, res) {
+        try {
+            const quiz_id = req.query.id;
+            const value = req.query.value;
+            var doc = await Quiz.findOne({ _id: quiz_id });
+            console.log("Set Favor", quiz_id, value);
+            if (doc) {
+                doc.favorite = (value == "true") ? true : false;
+                doc.save();
+                res.json({
+                    status: "success",
+                    quiz: doc,
+                });
+            }
+            else {
+                res.json({
+                    status: "error",
+                    error: "Document Not Found",
                 });
             }
         } catch (error) {

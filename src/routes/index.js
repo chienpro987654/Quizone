@@ -241,12 +241,12 @@ function route(app) {
                 doc.running = false;
                 doc.save();
 
-                console.log(aResult);
+                console.log(aResult);           
                 var topResult = [...aResult].sort((first, second) => second.point - first.point).splice(0, 3);
                 console.log(topResult);
             }
             socket.emit("final_result_res", { result: topResult });
-            io.emit("final_result_res_player", { pin: data.pin });
+            io.emit("final_result_res_player", { pin: data.pin, result: aResult });
         });
 
         socket.on('disconnect', async function () {

@@ -3,10 +3,7 @@ const { default: mongoose } = require("mongoose");
 const Question = require("../models/Question");
 const { format } = require("morgan");
 const Quiz = require("../models/Quiz");
-const {
-    isEmpty,
-    validateSheet,
-} = require("../utils/lib/validate");
+const { isEmpty, validateSheet } = require("../utils/lib/validate");
 const { checkUser } = require("../middleware/authMiddleware");
 const xlsx = require("xlsx");
 class QuizController {
@@ -33,13 +30,13 @@ class QuizController {
             const quiz = new Quiz();
             quiz.name = jsonData.title;
             quiz.description = jsonData.description;
-            console.log(jsonData.thumbnailUri=="");
-            if (jsonData.thumbnailUri==''){
+            console.log(jsonData.thumbnailUri == "");
+            if (jsonData.thumbnailUri == "") {
                 quiz.thumbnail_uri = "";
             } else {
                 quiz.thumbnail_uri = jsonData.thumbnailUri.imgSrc;
             }
-            quiz.theme = jsonData.theme.imgUrl;
+            quiz.theme = jsonData.theme.imageUrl;
             quiz.owner = req.user.email;
 
             quiz.save();
@@ -59,11 +56,11 @@ class QuizController {
                 question.answerA = element.selections[0];
                 question.answerB = element.selections[1];
 
-                if (element.selections[2]!=null){
+                if (element.selections[2] != null) {
                     question.answerC = element.selections[2];
                 }
 
-                if (element.selections[3]!=null){
+                if (element.selections[3] != null) {
                     question.answerD = element.selections[3];
                 }
 
@@ -173,10 +170,10 @@ class QuizController {
             const _id = req.query.id;
             const jsonData = req.body.data;
             // console.log("json", jsonData.data);
-            
+
             var _name = jsonData.title;
             var _description = jsonData.description;
-            if (jsonData.thumbnailUri==""){
+            if (jsonData.thumbnailUri == "") {
                 var _thumbnail_uri = "";
             } else {
                 var _thumbnail_uri = jsonData.thumbnailUri.imgSrc;
@@ -184,10 +181,19 @@ class QuizController {
             var _theme = jsonData.theme.imgUrl;
             var _owner = req.user.email;
 
-            var quiz = await Quiz.findOneAndUpdate({_id: _id},{name: _name,description: _description,thumbnail_uri: _thumbnail_uri, theme: _theme, owner: _owner});
-            
+            var quiz = await Quiz.findOneAndUpdate(
+                { _id: _id },
+                {
+                    name: _name,
+                    description: _description,
+                    thumbnail_uri: _thumbnail_uri,
+                    theme: _theme,
+                    owner: _owner,
+                }
+            );
+
             // quiz.save();
-            console.log("quiz",_id,quiz);
+            console.log("quiz", _id, quiz);
 
             var questions = jsonData.questions;
 
@@ -204,11 +210,11 @@ class QuizController {
                 question.answerA = element.selections[0];
                 question.answerB = element.selections[1];
 
-                if (element.selections[2]!=null){
+                if (element.selections[2] != null) {
                     question.answerC = element.selections[2];
                 }
 
-                if (element.selections[3]!=null){
+                if (element.selections[3] != null) {
                     question.answerD = element.selections[3];
                 }
 
@@ -249,13 +255,15 @@ class QuizController {
                     doc.delete();
                     await Question.deleteMany({ quiz_id: _id });
                     const email = req.user.email;
-                    var quizzes = await Quiz.find({ owner: email }).sort([['createdAt','desc']]);
+                    var quizzes = await Quiz.find({ owner: email }).sort([
+                        ["createdAt", "desc"],
+                    ]);
                     res.json({
                         status: "success",
                         data: {
                             quizzes,
-                        }
-                    })
+                        },
+                    });
                 } else {
                     console.log(error);
                     res.json({

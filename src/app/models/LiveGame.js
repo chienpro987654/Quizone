@@ -12,6 +12,7 @@ const LiveGame = new Schema({
     running: {type: Boolean, default: false},
     mix: {type: Array, default: []},
     player: {type: Array, default: []},
+    blocked_player: {type: Array, default: []},
     data: {type: Array, default: []},
 },{
     timestamps: true,

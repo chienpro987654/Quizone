@@ -64,11 +64,14 @@ function route(app) {
                 var doc = await LiveGame.findOne({ pin: info.pin }).exec();
                 if (doc) {
                     var players = doc.player;
+                    var blocked_players = doc.blocked_player;
                     if (players.includes(info.name)) {
                         // console.log("Name Bad");
                         socket.emit("player_join_res", { error: "This Name Is Used" });
                     }
-                    else {
+                    else if (blocked_players.includes(data.name)){
+                        socket.emit("player_join_res", { error: "You Can Not Join This Game" });
+                    } else {
                         players = [...players, info.name]
                         console.log(players)
                         doc.player = players;
@@ -89,8 +92,23 @@ function route(app) {
             // console.log(isExist);
         });
 
+        //data: pin, name
         socket.on('kick_player_req', async function (data) {
-            
+            var doc = await LiveGame.findOne({ pin: data.pin }).exec();
+            if (doc){
+                var list_player = doc.player;
+                var blocked_players = doc.blocked_player;
+                list_player.forEach((element,index) => {
+                    if (element == data.name){
+                        list_player.splice(index, 1);
+                        blocked_players.push(element);
+                    }
+                });
+                doc.player = list_player;
+                doc.blocked_player = blocked_players;
+                doc.save();
+                io.emit("kick_player_res",{pin: data.pin, name: data.name});
+            }
         });
 
         //change status of live game when host press start button

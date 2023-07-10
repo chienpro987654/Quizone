@@ -89,6 +89,10 @@ function route(app) {
             // console.log(isExist);
         });
 
+        socket.on('kick_player_req', async function (data) {
+            
+        });
+
         //change status of live game when host press start button
         socket.on('host_start', async function (data) {
             var doc = await LiveGame.findOne({ pin: data.pin }).exec();
@@ -125,11 +129,11 @@ function route(app) {
                     if (!isEmpty(doc.mix)) {
                         socket.emit("next_question_res", { pin: data.pin, question: questions[doc.mix[data.counter]], length: questions.length });
                         timer.addTimer(data.pin, Date.now(), data.counter);
-                        io.emit("next_question_res_player", { pin: data.pin, counter: data.counter, time_prepare: questions[doc.mix[data.counter]].time_prepare });
+                        io.emit("next_question_res_player", { pin: data.pin, counter: data.counter, time_prepare: questions[doc.mix[data.counter]].time_prepare, type: questions[doc.mix[data.counter]].type });
                     } else {
                         socket.emit("next_question_res", { pin: data.pin, question: questions[data.counter], length: questions.length });
                         timer.addTimer(data.pin, Date.now(), data.counter);
-                        io.emit("next_question_res_player", { pin: data.pin, counter: data.counter, time_prepare: questions[data.counter].time_prepare });
+                        io.emit("next_question_res_player", { pin: data.pin, counter: data.counter, time_prepare: questions[data.counter].time_prepare, type: questions[data.counter].type });
                     }
                 }
 

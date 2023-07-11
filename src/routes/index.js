@@ -69,7 +69,7 @@ function route(app) {
                         // console.log("Name Bad");
                         socket.emit("player_join_res", { error: "This Name Is Used" });
                     }
-                    else if (blocked_players.includes(info.name)){
+                    else if (blocked_players.includes(info.name)) {
                         socket.emit("player_join_res", { error: "You Can Not Join This Game" });
                     } else {
                         players = [...players, info.name]
@@ -95,11 +95,11 @@ function route(app) {
         //data: pin, name
         socket.on('kick_player_req', async function (data) {
             var doc = await LiveGame.findOne({ pin: data.pin }).exec();
-            if (doc){
+            if (doc) {
                 var list_player = doc.player;
                 var blocked_players = doc.blocked_player;
-                list_player.forEach((element,index) => {
-                    if (element == data.name){
+                list_player.forEach((element, index) => {
+                    if (element == data.name) {
                         list_player.splice(index, 1);
                         blocked_players.push(element);
                     }
@@ -107,7 +107,7 @@ function route(app) {
                 doc.player = list_player;
                 doc.blocked_player = blocked_players;
                 doc.save();
-                io.emit("kick_player_res",{pin: data.pin, name: data.name});
+                io.emit("kick_player_res", { pin: data.pin, name: data.name });
             }
         });
 
@@ -118,6 +118,7 @@ function route(app) {
             console.log("host_start", data.pin);
             if (doc) {
                 doc.running = true;
+                doc.save();
                 if (data.mix == true) {
                     console.log("mix question");
                     const count = await Question.count({ quiz_id: doc.quiz_id });
@@ -129,22 +130,23 @@ function route(app) {
                         [array[i], array[j]] = [array[j], array[i]];
                     }
                     doc.mix = array;
+                    await LiveGame.findOneAndUpdate({ pin: data.pin },{mix: array}).exec();
+                    socket.emit("host_start_res");
                 }
-                doc.save();
                 io.emit("host_start", { pin: data.pin });
             }
         });
 
         socket.on('next_question_req', async function (data) {
             var doc = await LiveGame.findOne({ pin: data.pin }).exec();
-            console.log(data);
             if (doc) {
                 var questions = await Question.find({ quiz_id: doc.quiz_id }).sort([['order', 'asc']]);;
 
                 if (questions.length <= data.counter) {
                     socket.emit("next_question_res", "End");
                 } else {
-                    console.log(doc.mix[0]);
+                    // console.log("next_ques_req",doc.mix,doc.mix[0]);
+                    console.log("next_ques_req",doc);
                     if (!isEmpty(doc.mix)) {
                         socket.emit("next_question_res", { pin: data.pin, question: questions[doc.mix[data.counter]], length: questions.length });
                         timer.addTimer(data.pin, Date.now(), data.counter);
@@ -178,9 +180,9 @@ function route(app) {
                     var true_answer = (isEmpty(doc.mix)) ? questions[sCounter].answer : questions[doc.mix[sCounter]].answer;
 
                     var point = 0;
-                    
+
                     console.log(questions[doc.mix[sCounter]]);
-                    console.log("answer",sAnswer, true_answer);
+                    console.log("answer", sAnswer, true_answer);
 
                     if (true_answer == sAnswer) {
                         var answerTime = Date.now();

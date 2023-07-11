@@ -7,7 +7,7 @@ const authRouter = require('./auth');
 const Quiz = require("../../src/app/models/Quiz");
 const Question = require("../../src/app/models/Question");
 const LiveGame = require("../../src/app/models/LiveGame");
-const { isNumber, isEmpty } = require('../app/utils/lib/validate');
+const { isNumber, isEmpty, isArrayEqual } = require('../app/utils/lib/validate');
 const { checkUser } = require('../app/middleware/authMiddleware');
 
 const { Timer } = require('../app/utils/classes/timer');
@@ -122,16 +122,17 @@ function route(app) {
                 if (data.mix == true) {
                     console.log("mix question");
                     const count = await Question.count({ quiz_id: doc.quiz_id });
-                    const array = Array.from({ length: count }, (_, i) => i.toString());
-
-                    // Fisher-Yates shuffle algorithm
-                    for (let i = array.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [array[i], array[j]] = [array[j], array[i]];
+                    const original_array = Array.from({ length: count }, (_, i) => i.toString());
+                    var mixed_array = [...original_array];
+                    while (isArrayEqual(original_array,mixed_array)){
+                        // Fisher-Yates shuffle algorithm
+                        for (let i = mixed_array.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [mixed_array[i], mixed_array[j]] = [mixed_array[j], mixed_array[i]];
+                        }
                     }
-                    doc.mix = array;
-                    await LiveGame.findOneAndUpdate({ pin: data.pin },{mix: array}).exec();
-                    socket.emit("host_start_res");
+                    await LiveGame.findOneAndUpdate({ pin: data.pin },{mix: mixed_array}).exec();
+                    socket.emit("host_start_res", { pin: data.pin });
                 }
                 io.emit("host_start", { pin: data.pin });
             }

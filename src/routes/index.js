@@ -158,7 +158,6 @@ function route(app) {
                         io.emit("next_question_res_player", { pin: data.pin, counter: data.counter, time_prepare: questions[data.counter].time_prepare, type: questions[data.counter].type });
                     }
                 }
-
                 // console.log("Show question");
             }
         });

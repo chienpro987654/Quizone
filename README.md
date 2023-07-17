@@ -14,6 +14,7 @@ Then you can go to this link to see the UI: https://quizzer-fe.vercel.app/. This
 You can see his GitHub project here: https://github.com/d4nhtr4n/quizone-fe.
 
 This website will call API from the server you cloned and started at localhost.
+You can also see video demo here: [Link](https://drive.google.com/file/d/1C1_EXsxBFP8TtjpvxW4SGS_E6Y8b4oEe/view?usp=sharing)
 ## Notice
 This project is using new language and technology to me. Some bugs need to fix,
 and system performance is terrible, so just don't use it as a preference.
